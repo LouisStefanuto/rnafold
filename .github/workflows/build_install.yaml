@@ -1,0 +1,35 @@
+name: Python Package Build and Install Test
+
+on: push
+
+jobs:
+  build_and_install:
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: 👾 Clone repo to runner
+      uses: actions/checkout@v4
+
+    - name: 🐍 Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: 🏗️ Install Poetry
+      run: pip install poetry
+
+    - name: 🏗️ Install Dependencies
+      run: poetry install
+
+    - name: 👷 Build Package
+      run: poetry build
+
+    - name: 🏗️ Install Package
+      run: pip install dist/*.whl --no-cache-dir
+
+    - name: 🧐 Test Package Installation
+      run: python -c "import rnafold"

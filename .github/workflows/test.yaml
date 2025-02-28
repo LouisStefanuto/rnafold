@@ -1,0 +1,37 @@
+name: test
+
+on: push
+jobs:
+  test:
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: 👾 Clone repo to runner
+      uses: actions/checkout@v4
+
+    - name: 🐍 Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: 🏗️ Install Poetry
+      run: |
+        pip install poetry
+        poetry config virtualenvs.in-project true
+
+    - name: 👀 Check python and poetry versions
+      run: |
+        python --version
+        poetry --version
+
+    - name: 🏗️ Install dependencies using Poetry
+      run: poetry install --with dev,docs
+
+    - name: 🤖 Run tests
+      run: |
+        source .venv/bin/activate
+        pytest tests/ -cov

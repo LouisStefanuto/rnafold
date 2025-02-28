@@ -1,0 +1,37 @@
+site_name: rnafold
+site_description: Official documentation of rnafold
+
+# Repository
+repo_name: Github
+repo_url: https://github.com/LouisStefanuto/rnafold.git
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    primary: indigo
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/LouisStefanuto/rnafold.git
+
+markdown_extensions:
+  # nested boxes
+  - pymdownx.superfences
+  # colored boxes to highlight key points
+  - admonition
+  # make colored boxes collapsible
+  - pymdownx.details
+  # for menu fancy grid-organized boxes
+  - attr_list
+  - md_in_html
+  # emojis from Material
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+# Page tree
+nav:
+  - Home: index.md

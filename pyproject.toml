@@ -1,0 +1,44 @@
+[tool.poetry]
+name = "rnafold"
+version = "0.1.0"
+authors = ["Louis Stefanuto <louis.stefanuto@gmail.com>"]
+description = ""
+readme = "README.md"
+
+[tool.poetry.scripts]
+rnafold = "rnafold.main:app"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.8.2"
+typer = "^0.12.3"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+nbstripout = "^0.7.1"
+pytest = "^8.3.2"
+pytest-mock = "^3.14.0"
+pre-commit = "^3.8.0"
+ruff = "^0.5.6"
+mypy = "^1.11.1"
+pytest-cov = "^5.0.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.6.0"
+mkdocs-material = "^9.5.31"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+extend-include = ["*.ipynb"]  # lint and format jupyer notebooks
+
+[tool.ruff.lint]
+extend-select = ["I"]  # sort imports like isort https://github.com/astral-sh/ruff/issues/8926
