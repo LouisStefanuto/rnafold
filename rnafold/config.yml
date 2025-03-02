@@ -1,0 +1,11 @@
+sequences:
+  train: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/train_sequences.csv"
+  val: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/validation_sequences.csv"
+  test: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/test_sequences.csv"
+labels:
+  train: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/train_labels.csv"
+  val: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/validation_labels.csv"
+submission: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/sample_submission.csv"
+
+tools: 
+  usalign: "/opt/homebrew/bin/usalign"
