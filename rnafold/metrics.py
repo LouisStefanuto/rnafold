@@ -58,7 +58,7 @@ def write_target_line(
     return f"ATOM  {atom_serial:>5d}  {atom_name:<5s} {residue_name:<3s} {residue_num:>3d}    {x_coord:>8.3f}{y_coord:>8.3f}{z_coord:>8.3f}{occupancy:>6.2f}{b_factor:>6.2f}           {atom_type}\n"
 
 
-def write2pdb(df: pd.DataFrame, xyz_id: str, target_path: str) -> int:
+def write2pdb(df: pd.DataFrame, xyz_id: int, target_path: str) -> int:
     resolved_cnt = 0
     with open(target_path, "w") as target_file:
         for _, row in df.iterrows():
@@ -141,7 +141,7 @@ def score(
 
                 if resolved_cnt > 0:
                     command = f'{Settings.tools.usalign} {predicted_pdb} {native_pdb} -atom " C1\'"'
-                    usalign_output = os.popen(command).read()
+                    usalign_output = os.popen(command).read()  # nosec
                     prediction_scores.append(parse_tmscore_output(usalign_output))
 
             target_id_scores.append(max(prediction_scores))

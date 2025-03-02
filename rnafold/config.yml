@@ -7,5 +7,5 @@ labels:
   val: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/validation_labels.csv"
 submission: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/sample_submission.csv"
 
-tools: 
+tools:
   usalign: "/opt/homebrew/bin/usalign"
