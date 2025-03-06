@@ -16,7 +16,7 @@ from tqdm import tqdm
 from rnafold.config import Settings
 
 
-def parse_tmscore_output(output):
+def parse_tmscore_output(output: str) -> float:
     # Extract TM-score based on length of reference structure (second)
     tm_score_match = re.findall(r"TM-score=\s+([\d.]+)", output)[1]
     if not tm_score_match:
@@ -25,17 +25,17 @@ def parse_tmscore_output(output):
 
 
 def write_target_line(
-    atom_name,
-    atom_serial,
-    residue_name,
-    chain_id,
-    residue_num,
-    x_coord,
-    y_coord,
-    z_coord,
-    occupancy=1.0,
-    b_factor=0.0,
-    atom_type="P",
+    atom_name: str,
+    atom_serial: int,
+    residue_name: str,
+    chain_id: str,
+    residue_num: int,
+    x_coord: float,
+    y_coord: float,
+    z_coord: float,
+    occupancy: float = 1.0,
+    b_factor: float = 0.0,
+    atom_type: str = "P",
 ) -> str:
     """
     Writes a single line of PDB format based on provided atom information.
@@ -158,4 +158,4 @@ def evaluate(solution: Path, submission: Path) -> None:
 
 
 if __name__ == "__main__":
-    evaluate(Path(Settings.labels.val), Path(Settings.submission))
+    evaluate(solution=Path(Settings.labels.val), submission=Path(Settings.submission))
