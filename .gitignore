@@ -165,3 +165,5 @@ data/
 
 # Protein Database files (ex. generated during evaluation)
 *.pdb
+
+results/
