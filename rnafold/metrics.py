@@ -59,6 +59,17 @@ def write_target_line(
 
 
 def write2pdb(df: pd.DataFrame, xyz_id: int, target_path: str) -> int:
+    """
+    Writes the structure into a PDB file.
+
+    Args:
+        df (pd.DataFrame): Structures
+        xyz_id (int): Id prefix of the x_i, y_i and z_i columns. One sequence can have multiple structures (ex. 40 in the val set).
+        target_path (str): Output PDB file
+
+    Returns:
+        int: Number of atoms for which the prediction is not a NaN (used for the metric's calculations).
+    """
     resolved_cnt = 0
     with open(target_path, "w") as target_file:
         for _, row in df.iterrows():
@@ -95,7 +106,7 @@ def score(
     the predicted structures with the native structures.
 
     Workflow:
-    1. Copies the USalign binary to the working directory and grants execution permissions.
+    1. (Skipped) Copies the USalign binary to the working directory and grants execution permissions.
     2. Extracts the `target_id` from the `ID` column of both the solution and submission DataFrames.
     3. Iterates over each unique `target_id`, grouping the native and predicted structures.
     4. Writes PDB files for native and predicted structures.
