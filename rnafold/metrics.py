@@ -151,14 +151,29 @@ def score(
                 _ = write2pdb(group_predicted, pred_cnt, predicted_pdb)
 
                 if resolved_cnt > 0:
-                    command = f'{Settings.tools.usalign} {predicted_pdb} {native_pdb} -atom " C1\'"'
-                    usalign_output = os.popen(command).read()  # nosec
-                    prediction_scores.append(parse_tmscore_output(usalign_output))
+                    tm_score = run_usalign(predicted_pdb, native_pdb)
+                    prediction_scores.append(tm_score)
 
             target_id_scores.append(max(prediction_scores))
         results.append(max(target_id_scores))
 
     return float(sum(results) / len(results))
+
+
+def run_usalign(predicted_pdb: str, native_pdb: str) -> float:
+    """
+    Return the TM score between two PDB files, using USalign in a subprocess.
+
+    Args:
+        predicted_pdb (str): Predicted PDB
+        native_pdb (str): Ground truth PDB
+
+    Returns:
+        float: Computed TM-score
+    """
+    command = f'{Settings.tools.usalign} {predicted_pdb} {native_pdb} -atom " C1\'"'
+    usalign_output = os.popen(command).read()  # nosec
+    return parse_tmscore_output(usalign_output)
 
 
 def evaluate(solution: Path, submission: Path) -> None:

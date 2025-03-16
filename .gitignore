@@ -168,3 +168,8 @@ data/
 
 results/
 .vscode/
+*.fasta
+models/
+log.txt
+*.npz
+*.ct
