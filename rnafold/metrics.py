@@ -11,9 +11,12 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import typer
 from tqdm import tqdm
 
 from rnafold.config import Settings
+
+app = typer.Typer()
 
 
 def parse_tmscore_output(output: str) -> float:
@@ -176,7 +179,14 @@ def run_usalign(predicted_pdb: str, native_pdb: str) -> float:
     return parse_tmscore_output(usalign_output)
 
 
-def evaluate(solution: Path, submission: Path) -> None:
+@app.command()
+def evaluate(
+    solution: Path = Path(Settings.labels.val),
+    submission: Path = Path(Settings.submission),
+) -> None:
+    """
+    Computes the TM-score between predicted and native RNA structures using USalign.
+    """
     y_true = pd.read_csv(solution)
     y_pred = pd.read_csv(submission)
     tm_score = score(y_true, y_pred, "")
@@ -184,4 +194,4 @@ def evaluate(solution: Path, submission: Path) -> None:
 
 
 if __name__ == "__main__":
-    evaluate(solution=Path(Settings.labels.val), submission=Path(Settings.submission))
+    app()

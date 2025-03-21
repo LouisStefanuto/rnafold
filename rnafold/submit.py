@@ -39,6 +39,25 @@ def create_random_submission(sequences: pd.DataFrame) -> pd.DataFrame:
     return submission
 
 
+def duplicate_xyz_columns(df: pd.DataFrame, n: int = 5) -> pd.DataFrame:
+    """
+    Duplicates the 'x_1', 'y_1', and 'z_1' columns in a DataFrame up to 'n' times.
+
+    Parameters:
+        df (pd.DataFrame): The input DataFrame containing at least 'x_1', 'y_1', and 'z_1' columns.
+        n (int, optional): The number of duplicate columns to create. Defaults to 5.
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with additional duplicated columns.
+    """
+    for i in range(2, n + 1):
+        df[f"x_{i}"] = df["x_1"]
+        df[f"y_{i}"] = df["y_1"]
+        df[f"z_{i}"] = df["z_1"]
+
+    return df
+
+
 if __name__ == "__main__":
     COLUMS = ["target_id", "sequence"]
 

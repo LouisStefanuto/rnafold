@@ -1,5 +1,9 @@
 import os
 import subprocess  # nosec
+import time
+from pathlib import Path
+
+import pandas as pd
 
 
 def generate_fasta(file_path, sequence_id, sequence):
@@ -20,13 +24,13 @@ def process_csv(fastas, output_folder):
         generate_fasta(fasta_file_path, sequence_id, sequence)
 
 
-def run_rhofold(
-    input_fas: str,
-    output_dir: str,
+def predict_rna_structure(
+    input_fas: str | Path,
+    output_dir: str | Path,
     relax_steps: int = 1,
     single_seq_pred: bool = True,
     device: str = "cpu",
-    ckpt: str = "../models/RhoFold_pretrained.pt",
+    ckpt: str | Path = "../models/RhoFold_pretrained.pt",
 ):
     """
     Runs the RhoFold inference script with the given parameters.
@@ -57,3 +61,37 @@ def run_rhofold(
     ]
 
     subprocess.run(cmd, check=True)  # nosec
+
+
+def get_sequence_length(fasta_file: Path) -> int:
+    with open(fasta_file, "r") as f:
+        lines = f.readlines()
+        sequence = "".join(line.strip() for line in lines if not line.startswith(">"))
+    return len(sequence)
+
+
+def predict_rna_structures(
+    fasta_dir: Path,
+    output_dir: Path,
+    **rhofold_kwargs,
+) -> pd.DataFrame:
+    results = []
+
+    for fasta_file in Path(fasta_dir).glob("*.fasta"):
+        start_time = time.time()
+
+        seq_output_dir = output_dir / fasta_file.stem
+        predict_rna_structure(fasta_file, seq_output_dir, **rhofold_kwargs)
+        end_time = time.time()
+
+        sequence_length = get_sequence_length(fasta_file)
+
+        results.append(
+            {
+                "target_id": fasta_file.stem,
+                "execution_time": round(end_time - start_time, 3),
+                "sequence_length": sequence_length,
+            }
+        )
+
+    return pd.DataFrame(results)
