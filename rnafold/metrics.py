@@ -11,12 +11,15 @@ import sys
 from pathlib import Path
 
 import pandas as pd
+import typer
 from tqdm import tqdm
 
 from rnafold.config import Settings
 
+app = typer.Typer()
 
-def parse_tmscore_output(output):
+
+def parse_tmscore_output(output: str) -> float:
     # Extract TM-score based on length of reference structure (second)
     tm_score_match = re.findall(r"TM-score=\s+([\d.]+)", output)[1]
     if not tm_score_match:
@@ -25,17 +28,17 @@ def parse_tmscore_output(output):
 
 
 def write_target_line(
-    atom_name,
-    atom_serial,
-    residue_name,
-    chain_id,
-    residue_num,
-    x_coord,
-    y_coord,
-    z_coord,
-    occupancy=1.0,
-    b_factor=0.0,
-    atom_type="P",
+    atom_name: str,
+    atom_serial: int,
+    residue_name: str,
+    chain_id: str,
+    residue_num: int,
+    x_coord: float,
+    y_coord: float,
+    z_coord: float,
+    occupancy: float = 1.0,
+    b_factor: float = 0.0,
+    atom_type: str = "P",
 ) -> str:
     """
     Writes a single line of PDB format based on provided atom information.
@@ -59,6 +62,17 @@ def write_target_line(
 
 
 def write2pdb(df: pd.DataFrame, xyz_id: int, target_path: str) -> int:
+    """
+    Writes the structure into a PDB file.
+
+    Args:
+        df (pd.DataFrame): Structures
+        xyz_id (int): Id prefix of the x_i, y_i and z_i columns. One sequence can have multiple structures (ex. 40 in the val set).
+        target_path (str): Output PDB file
+
+    Returns:
+        int: Number of atoms for which the prediction is not a NaN (used for the metric's calculations).
+    """
     resolved_cnt = 0
     with open(target_path, "w") as target_file:
         for _, row in df.iterrows():
@@ -95,7 +109,7 @@ def score(
     the predicted structures with the native structures.
 
     Workflow:
-    1. Copies the USalign binary to the working directory and grants execution permissions.
+    1. (Skipped) Copies the USalign binary to the working directory and grants execution permissions.
     2. Extracts the `target_id` from the `ID` column of both the solution and submission DataFrames.
     3. Iterates over each unique `target_id`, grouping the native and predicted structures.
     4. Writes PDB files for native and predicted structures.
@@ -140,9 +154,8 @@ def score(
                 _ = write2pdb(group_predicted, pred_cnt, predicted_pdb)
 
                 if resolved_cnt > 0:
-                    command = f'{Settings.tools.usalign} {predicted_pdb} {native_pdb} -atom " C1\'"'
-                    usalign_output = os.popen(command).read()  # nosec
-                    prediction_scores.append(parse_tmscore_output(usalign_output))
+                    tm_score = run_usalign(predicted_pdb, native_pdb)
+                    prediction_scores.append(tm_score)
 
             target_id_scores.append(max(prediction_scores))
         results.append(max(target_id_scores))
@@ -150,7 +163,30 @@ def score(
     return float(sum(results) / len(results))
 
 
-def evaluate(solution: Path, submission: Path) -> None:
+def run_usalign(predicted_pdb: str, native_pdb: str) -> float:
+    """
+    Return the TM score between two PDB files, using USalign in a subprocess.
+
+    Args:
+        predicted_pdb (str): Predicted PDB
+        native_pdb (str): Ground truth PDB
+
+    Returns:
+        float: Computed TM-score
+    """
+    command = f'{Settings.tools.usalign} {predicted_pdb} {native_pdb} -atom " C1\'"'
+    usalign_output = os.popen(command).read()  # nosec
+    return parse_tmscore_output(usalign_output)
+
+
+@app.command()
+def evaluate(
+    solution: Path = Path(Settings.labels.val),
+    submission: Path = Path(Settings.submission),
+) -> None:
+    """
+    Computes the TM-score between predicted and native RNA structures using USalign.
+    """
     y_true = pd.read_csv(solution)
     y_pred = pd.read_csv(submission)
     tm_score = score(y_true, y_pred, "")
@@ -158,4 +194,4 @@ def evaluate(solution: Path, submission: Path) -> None:
 
 
 if __name__ == "__main__":
-    evaluate(Path(Settings.labels.val), Path(Settings.submission))
+    app()

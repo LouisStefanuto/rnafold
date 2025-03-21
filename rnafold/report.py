@@ -3,7 +3,7 @@ import pandas as pd
 from rnafold.config import Settings
 
 
-def _load_sequences() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def _load_all_sequences() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     sequences_train = pd.read_csv(Settings.sequences.train)
     sequences_val = pd.read_csv(Settings.sequences.val)
     sequences_test = pd.read_csv(Settings.sequences.test)
@@ -29,7 +29,7 @@ def _print_sequences(
 
 
 def report() -> None:
-    sequences_train, sequences_val, sequences_test = _load_sequences()
+    sequences_train, sequences_val, sequences_test = _load_all_sequences()
     _print_sequences(sequences_train, sequences_val, sequences_test)
 
 

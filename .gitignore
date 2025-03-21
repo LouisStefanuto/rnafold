@@ -165,3 +165,11 @@ data/
 
 # Protein Database files (ex. generated during evaluation)
 *.pdb
+
+results/
+.vscode/
+*.fasta
+models/
+log.txt
+*.npz
+*.ct
