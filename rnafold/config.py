@@ -1,5 +1,5 @@
 import os
-import pathlib
+from pathlib import Path
 
 from pydantic import BaseModel, FilePath
 
@@ -17,7 +17,7 @@ def get_config_file():
     Returns the appropriate config file path based on the environment variable ENVIRONMENT.
     """
     env = os.getenv("ENVIRONMENT", "local")
-    config_dir = pathlib.Path(__file__).parent.parent
+    config_dir = Path(__file__).parent.parent
 
     if env in CONFIG_FILES:
         return config_dir / CONFIG_FILES[env]
@@ -43,7 +43,7 @@ class Files(BaseModel):
 
 
 class Tools(BaseModel):
-    usalign: FilePath
+    usalign: Path
 
 
 class GlobalConfig(BaseConfig):
