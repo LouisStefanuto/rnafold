@@ -30,3 +30,7 @@ Run the evaluation on a fake test set:
 ```shell
 python rnafold/metrics.py
 ```
+
+## Configuration
+
+Configuration files are provided in the `config` folder for local and Kaggle.

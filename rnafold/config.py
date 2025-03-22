@@ -7,8 +7,8 @@ from rnafold.baseconfig import BaseConfig
 
 # Define the mapping of environments to config files
 CONFIG_FILES = {
-    "local": "config/config_local.yml",
-    "kaggle": "config/config_kaggle.yml",
+    "local": "config/global_local.yml",
+    "kaggle": "config/global_kaggle.yml",
 }
 
 
@@ -46,7 +46,7 @@ class Tools(BaseModel):
     usalign: FilePath
 
 
-class DataConfig(BaseConfig):
+class GlobalConfig(BaseConfig):
     sequences: SequenceFiles
     labels: LabelsFiles
     submission: FilePath
@@ -54,4 +54,4 @@ class DataConfig(BaseConfig):
 
 
 config_file = get_config_file()
-Settings = DataConfig.load_from_yaml(config_file)
+Settings = GlobalConfig.load_from_yaml(config_file)
