@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import Enum
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 
 
-class AtomType(StrEnum):
+class AtomType(Enum):
     N = "n"
     P = "p"
     C = "c"
