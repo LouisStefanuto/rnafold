@@ -1,0 +1,3 @@
+solution:  "/kaggle/input/stanford-rna-3d-folding/validation_labels.csv"
+submission: "/kaggle/input/stanford-rna-3d-folding/sample_submission.csv"
+usalign_bin: "/kaggle/working/USalign"

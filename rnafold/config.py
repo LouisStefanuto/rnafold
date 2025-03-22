@@ -1,13 +1,14 @@
 import os
 import pathlib
 
-import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, FilePath
+
+from rnafold.baseconfig import BaseConfig
 
 # Define the mapping of environments to config files
 CONFIG_FILES = {
-    "local": "config_local.yml",
-    "kaggle": "config_kaggle.yml",
+    "local": "config/config_local.yml",
+    "kaggle": "config/config_kaggle.yml",
 }
 
 
@@ -16,7 +17,7 @@ def get_config_file():
     Returns the appropriate config file path based on the environment variable ENVIRONMENT.
     """
     env = os.getenv("ENVIRONMENT", "local")
-    config_dir = pathlib.Path(__file__).parent.parent / "config"
+    config_dir = pathlib.Path(__file__).parent.parent
 
     if env in CONFIG_FILES:
         return config_dir / CONFIG_FILES[env]
@@ -27,14 +28,14 @@ def get_config_file():
 
 
 class SequenceFiles(BaseModel):
-    train: str
-    val: str
-    test: str
+    train: FilePath
+    val: FilePath
+    test: FilePath
 
 
 class LabelsFiles(BaseModel):
-    train: str
-    val: str
+    train: FilePath
+    val: FilePath
 
 
 class Files(BaseModel):
@@ -42,25 +43,15 @@ class Files(BaseModel):
 
 
 class Tools(BaseModel):
-    usalign: str
+    usalign: FilePath
 
 
-class Config(BaseModel):
+class DataConfig(BaseConfig):
     sequences: SequenceFiles
     labels: LabelsFiles
-    submission: str
+    submission: FilePath
     tools: Tools
 
 
-def _load_yml_config(path: pathlib.Path):
-    """Classmethod returns YAML config"""
-    try:
-        return yaml.safe_load(path.read_text())
-
-    except FileNotFoundError as error:
-        message = "Error: yml config file not found."
-        raise FileNotFoundError(error, message) from error
-
-
 config_file = get_config_file()
-Settings = Config(**_load_yml_config(config_file))
+Settings = DataConfig.load_from_yaml(config_file)

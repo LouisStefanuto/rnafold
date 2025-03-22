@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pandas as pd
 import typer
-from pydantic import Field
+from pydantic import Field, FilePath
 from tqdm import tqdm
 
 from rnafold.baseconfig import BaseConfig
@@ -21,9 +21,9 @@ app = typer.Typer()
 
 
 class MetricsConfig(BaseConfig):
-    solution: Path = Field(..., description="Path to solution CSV")
-    submission: Path = Field(..., description="Path to submission CSV")
-    usalign_bin: Path = Field(..., description="Path to the USalign binary")
+    solution: FilePath = Field(..., description="Path to solution CSV")
+    submission: FilePath = Field(..., description="Path to submission CSV")
+    usalign_bin: FilePath = Field(..., description="Path to the USalign binary")
 
 
 def parse_tmscore_output(output: str) -> float:
@@ -197,21 +197,23 @@ def evaluate_solution(solution: Path, submission: Path, usalign_bin: Path) -> fl
 
 @app.command()
 def evaluate(
-    config_path: Path = typer.Option(None, "--config", "-c", help="Path to conf YAML. If provided, all the other fields are ignored."),
-    solution: Path = typer.Option(None, help="Path to the solution CSV"),
-    submission: Path = typer.Option(None, help="Path to the submission CSV"),
+    config_path: FilePath = typer.Option(None, "--config", "-c", help="Path to conf YAML. If provided, all the other fields are ignored."),
+    solution: FilePath = typer.Option(None, help="Path to the solution CSV"),
+    submission: FilePath = typer.Option(None, help="Path to the submission CSV"),
     usalign_bin: Path = typer.Option(None, help="Path to the USalign binary"),
 ):  # fmt: skip
     """
     CLI command that computes the TM-score between predicted and native RNA structures.
     """
 
-    cli_options = {
-        "solution": solution,
-        "submission": submission,
-        "usalign_bin": usalign_bin,
-    }
-    config = MetricsConfig.from_file_or_cli(config_path, **cli_options)
+    if config_path:
+        config = MetricsConfig.load_from_yaml(config_path)
+    else:
+        config = MetricsConfig(
+            solution=solution,
+            submission=submission,
+            usalign_bin=usalign_bin,
+        )
 
     tm_score = evaluate_solution(config.solution, config.submission, config.usalign_bin)
     print("Submission TM-score", tm_score)
