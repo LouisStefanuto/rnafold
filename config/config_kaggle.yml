@@ -1,0 +1,13 @@
+sequences:
+  train: "/kaggle/input/stanford-rna-3d-folding/train_sequences.csv"
+  val: "/kaggle/input/stanford-rna-3d-folding/validation_sequences.csv"
+  test: "/kaggle/input/stanford-rna-3d-folding/test_sequences.csv"
+
+labels:
+  train: "/kaggle/input/stanford-rna-3d-folding/train_labels.csv"
+  val: "/kaggle/input/stanford-rna-3d-folding/validation_labels.csv"
+
+submission: "/kaggle/input/stanford-rna-3d-folding/sample_submission.csv"
+
+tools:
+  usalign: "/kaggle/working/USalign"

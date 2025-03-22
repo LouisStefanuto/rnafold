@@ -127,7 +127,7 @@ def score(
 
     if not shutil.which(Settings.tools.usalign):
         sys.exit(
-            "Error: USalign is not installed. Please install it via Homebrew: brew install brewsci/bio/usalign"
+            "Error: USalign is not installed. Please install it via GitHub or Homebrew (brew install brewsci/bio/usalign)."
         )
 
     # Extract target_id from ID (target_resid)
