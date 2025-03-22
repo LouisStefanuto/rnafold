@@ -12,11 +12,18 @@ from pathlib import Path
 
 import pandas as pd
 import typer
+from pydantic import Field
 from tqdm import tqdm
 
-from rnafold.config import Settings
+from rnafold.baseconfig import BaseConfig
 
 app = typer.Typer()
+
+
+class MetricsConfig(BaseConfig):
+    solution: Path = Field(..., description="Path to solution CSV")
+    submission: Path = Field(..., description="Path to submission CSV")
+    usalign_bin: Path = Field(..., description="Path to the USalign binary")
 
 
 def parse_tmscore_output(output: str) -> float:
@@ -99,7 +106,10 @@ def write2pdb(df: pd.DataFrame, xyz_id: int, target_path: str) -> int:
 
 
 def score(
-    solution: pd.DataFrame, submission: pd.DataFrame, row_id_column_name: str
+    solution: pd.DataFrame,
+    submission: pd.DataFrame,
+    usalign: Path,
+    row_id_column_name: str = "",
 ) -> float:
     """
     Computes the TM-score between predicted and native RNA structures using USalign.
@@ -119,13 +129,13 @@ def score(
     Args:
         solution (pd.DataFrame): A DataFrame containing the native RNA structures.
         submission (pd.DataFrame): A DataFrame containing the predicted RNA structures.
-        row_id_column_name (str): The name of the column containing unique row identifiers.
+        row_id_column_name (str): The name of the column containing unique row identifiers. Not used but needed by Kaggle to be accepted as scoring function.
 
     Returns:
         float: the average highest TM-scores.
     """
 
-    if not shutil.which(Settings.tools.usalign):
+    if not shutil.which(usalign):
         sys.exit(
             "Error: USalign is not installed. Please install it via GitHub or Homebrew (brew install brewsci/bio/usalign)."
         )
@@ -154,7 +164,7 @@ def score(
                 _ = write2pdb(group_predicted, pred_cnt, predicted_pdb)
 
                 if resolved_cnt > 0:
-                    tm_score = run_usalign(predicted_pdb, native_pdb)
+                    tm_score = run_usalign(predicted_pdb, native_pdb, usalign)
                     prediction_scores.append(tm_score)
 
             target_id_scores.append(max(prediction_scores))
@@ -163,33 +173,47 @@ def score(
     return float(sum(results) / len(results))
 
 
-def run_usalign(predicted_pdb: str, native_pdb: str) -> float:
+def run_usalign(
+    predicted_pdb: str | Path,
+    native_pdb: str | Path,
+    usalign: str | Path,
+) -> float:
     """
     Return the TM score between two PDB files, using USalign in a subprocess.
-
-    Args:
-        predicted_pdb (str): Predicted PDB
-        native_pdb (str): Ground truth PDB
-
-    Returns:
-        float: Computed TM-score
     """
-    command = f'{Settings.tools.usalign} {predicted_pdb} {native_pdb} -atom " C1\'"'
+    command = f'{usalign} {predicted_pdb} {native_pdb} -atom " C1\'"'
     usalign_output = os.popen(command).read()  # nosec
     return parse_tmscore_output(usalign_output)
 
 
-@app.command()
-def evaluate(
-    solution: Path = Path(Settings.labels.val),
-    submission: Path = Path(Settings.submission),
-) -> None:
+def evaluate_solution(solution: Path, submission: Path, usalign_bin: Path) -> float:
     """
     Computes the TM-score between predicted and native RNA structures using USalign.
     """
     y_true = pd.read_csv(solution)
     y_pred = pd.read_csv(submission)
-    tm_score = score(y_true, y_pred, "")
+    return score(y_true, y_pred, usalign_bin)
+
+
+@app.command()
+def evaluate(
+    config_path: Path = typer.Option(None, "--config", "-c", help="Path to conf YAML. If provided, all the other fields are ignored."),
+    solution: Path = typer.Option(None, help="Path to the solution CSV"),
+    submission: Path = typer.Option(None, help="Path to the submission CSV"),
+    usalign_bin: Path = typer.Option(None, help="Path to the USalign binary"),
+):  # fmt: skip
+    """
+    CLI command that computes the TM-score between predicted and native RNA structures.
+    """
+
+    cli_options = {
+        "solution": solution,
+        "submission": submission,
+        "usalign_bin": usalign_bin,
+    }
+    config = MetricsConfig.from_file_or_cli(config_path, **cli_options)
+
+    tm_score = evaluate_solution(config.solution, config.submission, config.usalign_bin)
     print("Submission TM-score", tm_score)
 
 
