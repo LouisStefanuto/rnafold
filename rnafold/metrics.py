@@ -170,6 +170,11 @@ def score(
             target_id_scores.append(max(prediction_scores))
         results.append(max(target_id_scores))
 
+    if os.path.exists(native_pdb):
+        os.remove(native_pdb)
+    if os.path.exists(predicted_pdb):
+        os.remove(predicted_pdb)
+
     return float(sum(results) / len(results))
 
 
