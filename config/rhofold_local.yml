@@ -1,0 +1,8 @@
+csv_path: "/Users/lstefanu/Documents/perso/kaggle/rnafold/data/test_sequences-small.csv"
+fasta_dir: "/Users/lstefanu/Documents/perso/kaggle/rnafold/fasta"
+predictions_dir: "/Users/lstefanu/Documents/perso/kaggle/rnafold/predictions"
+relax_steps: 1
+submission_path: submission.csv
+rhofold_repo:
+  inference_script: "/Users/lstefanu/Documents/perso/kaggle/RhoFold/inference.py"
+  model_ckpt: "/Users/lstefanu/Documents/perso/kaggle/rnafold/models/RhoFold_pretrained.pt"

@@ -26,26 +26,27 @@ def process_csv(fastas, output_folder):
 
 def predict_rna_structure(
     input_fas: str | Path,
-    output_dir: str | Path,
+    predictions_dir: str | Path,
+    model_ckpt: str | Path,
+    inference_script: str | Path,
     relax_steps: int = 1,
     single_seq_pred: bool = True,
     device: str = "cpu",
-    ckpt: str | Path = "../models/RhoFold_pretrained.pt",
 ):
     """
     Runs the RhoFold inference script with the given parameters.
 
     Parameters:
         input_fas (str): Path to the input FASTA file.
-        output_dir (str): Directory to store the output.
+        predictions_dir (str): Directory to store the output.
         relax_steps (int): Number of relaxation steps (default: 1).
         single_seq_pred (bool): Whether to use single sequence prediction (default: True).
         device (str): Device to run the inference on (default: 'cpu').
-        ckpt (str): Path to the checkpoint file (default: '../models/RhoFold_pretrained.pt').
+        model_ckpt (str): Path to the checkpoint file (default: '../models/RhoFold_pretrained.pt').
     """
     cmd = [
         "python",
-        "../../RhoFold/inference.py",
+        str(inference_script),
         "--relax_steps",
         str(relax_steps),
         "--input_fas",
@@ -53,11 +54,11 @@ def predict_rna_structure(
         "--single_seq_pred",
         str(single_seq_pred),
         "--output_dir",
-        output_dir,
+        predictions_dir,
         "--device",
         device,
         "--ckpt",
-        ckpt,
+        model_ckpt,
     ]
 
     subprocess.run(cmd, check=True)  # nosec
@@ -72,16 +73,24 @@ def get_sequence_length(fasta_file: Path) -> int:
 
 def predict_rna_structures(
     fasta_dir: Path,
-    output_dir: Path,
-    **rhofold_kwargs,
+    predictions_dir: Path,
+    relax_steps: int,
+    inference_script: str | Path,
+    model_ckpt: Path,
 ) -> pd.DataFrame:
     results = []
 
     for fasta_file in Path(fasta_dir).glob("*.fasta"):
         start_time = time.time()
 
-        seq_output_dir = output_dir / fasta_file.stem
-        predict_rna_structure(fasta_file, seq_output_dir, **rhofold_kwargs)
+        seq_predictions_dir = predictions_dir / fasta_file.stem
+        predict_rna_structure(
+            input_fas=fasta_file,
+            predictions_dir=seq_predictions_dir,
+            relax_steps=relax_steps,
+            model_ckpt=model_ckpt,
+            inference_script=inference_script,
+        )
         end_time = time.time()
 
         sequence_length = get_sequence_length(fasta_file)
@@ -89,8 +98,8 @@ def predict_rna_structures(
         results.append(
             {
                 "target_id": fasta_file.stem,
-                "execution_time": round(end_time - start_time, 3),
                 "sequence_length": sequence_length,
+                "execution_time": round(end_time - start_time, 3),
             }
         )
 
