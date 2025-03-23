@@ -77,6 +77,7 @@ def predict_rna_structures(
     relax_steps: int,
     inference_script: str | Path,
     model_ckpt: Path,
+    device: str,
 ) -> pd.DataFrame:
     results = []
 
@@ -90,6 +91,7 @@ def predict_rna_structures(
             relax_steps=relax_steps,
             model_ckpt=model_ckpt,
             inference_script=inference_script,
+            device=device,
         )
         end_time = time.time()
 

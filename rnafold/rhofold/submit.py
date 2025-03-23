@@ -24,6 +24,7 @@ class RhoFoldConfig(BaseConfig):
     relax_steps: int = Field(..., description="Number of relaxation steps")
     submission_path: Path = Field(..., description="Path to save the submission CSV")
     rhofold_repo: RhoFoldRepoConfig
+    device: str = Field(..., description="Device for inference (cpu/gpu)")
 
 
 def run_rhofold(config: RhoFoldConfig):
@@ -38,6 +39,7 @@ def run_rhofold(config: RhoFoldConfig):
         relax_steps=config.relax_steps,
         inference_script=config.rhofold_repo.inference_script,
         model_ckpt=config.rhofold_repo.model_ckpt,
+        device=config.device,
     )
 
     predictions = []
@@ -72,6 +74,7 @@ def cli_run_rhofold(
     relax_steps: int = typer.Option(None, help="Number of relaxation steps"),
     submission_path: Path = typer.Option(None, help="Path to save the final submission CSV"),
     model_ckpt: FilePath = typer.Option(None, help="Path to model checkpoint"),
+    device: str = typer.Option("cpu", help="Accelerator for inference")
 ):  # fmt: skip
     """CLI command to process RNA sequences, predict structures, and export results."""
     if config_path:
@@ -87,6 +90,7 @@ def cli_run_rhofold(
                 inference_script=inference_script,
                 model_ckpt=model_ckpt,
             ),
+            device=device,
         )
     run_rhofold(config)
 
