@@ -173,3 +173,5 @@ models/
 log.txt
 *.npz
 *.ct
+
+TODO.md
