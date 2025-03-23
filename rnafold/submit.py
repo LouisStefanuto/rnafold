@@ -1,8 +1,9 @@
 """Zero submission for Kaggle."""
 
 import pandas as pd
+import typer
 
-from rnafold.config import Settings
+app = typer.Typer()
 
 
 def compute_sequence_length(sequences: pd.Series) -> pd.Series:
@@ -58,11 +59,17 @@ def duplicate_xyz_columns(df: pd.DataFrame, n: int = 5) -> pd.DataFrame:
     return df
 
 
-if __name__ == "__main__":
-    COLUMS = ["target_id", "sequence"]
+@app.command()
+def main(csv_path: str):
+    """Reads a CSV file, processes sequences, and saves a full-zero submission."""
+    COLUMNS = ["target_id", "sequence"]
 
-    sequences = pd.read_csv(Settings.sequences.val, usecols=COLUMS)
+    sequences = pd.read_csv(csv_path, usecols=COLUMNS)
     submission = create_random_submission(sequences)
     submission.to_csv("submission.csv", index=False)
 
     print(submission)
+
+
+if __name__ == "__main__":
+    app()
