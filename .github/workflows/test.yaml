@@ -23,7 +23,7 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: "poetry"
-        cached-dependency-path: "**/*.poetry.lock"
+        cache-dependency-path: "**/*.poetry.lock"
 
     - name: 👀 Check python and poetry versions
       run: |
