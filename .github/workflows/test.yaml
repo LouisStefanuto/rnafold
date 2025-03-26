@@ -13,15 +13,16 @@ jobs:
     - name: 👾 Clone repo to runner
       uses: actions/checkout@v4
 
-    - name: 🐍 Install python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-
     - name: 🏗️ Install Poetry
       run: |
         pip install poetry
         poetry config virtualenvs.in-project true
+
+    - name: 🐍 Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: "poetry"
 
     - name: 👀 Check python and poetry versions
       run: |
