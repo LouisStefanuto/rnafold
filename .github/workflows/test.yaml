@@ -23,6 +23,14 @@ jobs:
         pip install poetry
         poetry config virtualenvs.in-project true
 
+    - name: 🗄️ Cache Poetry virtual environment
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          venv-${{ runner.os }}-${{ matrix.python-version }}-
+
     - name: 👀 Check python and poetry versions
       run: |
         python --version
@@ -34,4 +42,4 @@ jobs:
     - name: 🤖 Run tests
       run: |
         source .venv/bin/activate
-        pytest tests/ -cov
+        pytest tests/ --cov
