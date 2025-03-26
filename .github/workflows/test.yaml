@@ -13,17 +13,23 @@ jobs:
     - name: 👾 Clone repo to runner
       uses: actions/checkout@v4
 
+    - name: 🐍 Install python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
     - name: 🏗️ Install Poetry
       run: |
         pip install poetry
         poetry config virtualenvs.in-project true
 
-    - name: 🐍 Install python
-      uses: actions/setup-python@v5
+    - name: 🗄️ Cache Poetry virtual environment
+      uses: actions/cache@v4
       with:
-        python-version: ${{ matrix.python-version }}
-        cache: "poetry"
-        cache-dependency-path: "**/*.poetry.lock"
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          venv-${{ runner.os }}-${{ matrix.python-version }}-
 
     - name: 👀 Check python and poetry versions
       run: |
@@ -36,4 +42,4 @@ jobs:
     - name: 🤖 Run tests
       run: |
         source .venv/bin/activate
-        pytest tests/ -cov
+        pytest tests/ --cov
