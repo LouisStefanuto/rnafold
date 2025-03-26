@@ -14,13 +14,23 @@ jobs:
     - name: 👾 Clone repo to runner
       uses: actions/checkout@v4
 
-    - name: 🐍 Install python
+    - name: 🐍 Install Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: 🏗️ Install Poetry
-      run: pip install poetry
+      run: |
+        pip install poetry
+        poetry config virtualenvs.in-project true
+
+    - name: 🗄️ Cache Poetry virtual environment
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          venv-${{ runner.os }}-${{ matrix.python-version }}-
 
     - name: 🏗️ Install Dependencies
       run: poetry install
